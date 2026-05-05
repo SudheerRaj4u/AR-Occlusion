@@ -334,129 +334,6 @@ This is where we assemble all the pieces in Unity like building with LEGO.
 
 ---
 
-## 🎬 DEMO VIDEO SCRIPT (Say This Out Loud While Recording)
-
-**Recording method:** Use a second phone to film the first phone's screen. Or use the tablet's built-in screen recorder (Settings → Advanced Features → Screen Recorder).
-
----
-
-### [0:00 – 0:10] TITLE CARD
-*(No narration — show a title slide or just the app loading)*
-
----
-
-### [0:10 – 0:35] THE PROBLEM
-*(Hold your hand in front of the poster WITHOUT the occlusion app — show the bad effect)*
-
-> *"This is the standard AR occlusion problem. When a real object — in this case my hand — is between the camera and an AR poster, the video incorrectly floats in front of it. This is called an occlusion error. My project solves this in real time, on-device, with no special hardware."*
-
----
-
-### [0:35 – 0:55] POSTER DETECTION
-*(Point phone at the printed poster — let the video snap into place)*
-
-> *"The system uses AR Foundation image tracking to detect the reference poster. Once recognised, a video plane is anchored precisely onto the physical poster — locked to its position even as you move."*
-
----
-
-### [0:55 – 1:30] OCCLUSION DEMO
-*(Slowly move your hand in front of the poster. Move it left and right. Try your full arm.)*
-
-> *"Now with the occlusion system active. The AI detects my hand as a foreground object. The custom graphics shader discards the video pixels wherever my hand is detected — revealing the real camera feed underneath. My hand correctly appears in front of the video."*
-
----
-
-### [1:30 – 2:00] TOGGLE COMPARISON
-*(Tap the Occlusion ON button to turn it OFF, then back ON. Do this 2–3 times slowly.)*
-
-> *"A runtime toggle lets us compare directly. Occlusion OFF — the video floats over my hand, breaking immersion. Occlusion ON — my hand is correctly in front. The difference is immediate and clear."*
-
-*(Point briefly to the FPS counter in the corner)*
-
----
-
-### [2:00 – 2:30] CLOSING SUMMARY
-*(Lower the phone, look at camera or keep poster visible in background)*
-
-> *"This pipeline runs entirely on-device — no cloud, no depth sensor required. It uses AR Foundation for image tracking, a lightweight AI model called MobileSAM for person segmentation, and a custom graphics shader that discards video pixels using a technique called HLSL clip(). The system maintains real-time performance, demonstrating that foreground occlusion is practical for consumer AR applications today. Thank you."*
-
----
-
-### ▶️ STOP RECORDING. Target length: 2 min 30 sec.
-
----
-
-## 🗣️ VIVA INTERVIEW PREPARATION (Plain English Answers)
-
-The viva is your most important assessment. Here are the key questions with answers in plain language:
-
----
-
-**Q1: What problem does your project solve?**
-> *"Normal AR apps show video floating in front of everything — including real people who walk in front of the poster. This looks wrong. My project detects real people using AI and makes the video correctly appear behind them, so the scene looks natural."*
-
----
-
-**Q2: What is AR Foundation?**
-> *"AR Foundation is Unity's official toolkit for building AR apps. It handles the hard work of detecting the poster with the phone camera and tracking its position in 3D space, even as you move the phone around."*
-
----
-
-**Q3: What is MobileSAM and why did you choose it?**
-> *"SAM — Segment Anything Model — is a large AI model from Meta that can detect and outline any object in an image. It's incredibly powerful but too big for a phone. MobileSAM is a smaller, faster version — over 100 times faster than the original — that still produces accurate person outlines. That's why I chose it: it runs in real time on a mobile GPU."*
-
----
-
-**Q4: What is Unity Sentis?**
-> *"Unity Sentis is Unity's built-in AI runner. It lets you take an AI model in ONNX format and run it directly inside the app — on the phone's GPU — without any internet connection or external service. I use it to run MobileSAM inside the Unity app."*
-
----
-
-**Q5: What is BackendType.GPUCompute?**
-> *"This is the setting that tells Sentis to run the AI model on the phone's graphics chip (GPU) instead of the CPU. The GPU is much faster for AI calculations because it can do millions of operations in parallel. Using the GPU keeps the CPU free for tracking and rendering, so the app stays smooth."*
-
----
-
-**Q6: What is the HLSL shader and what does clip() do?**
-> *"A shader is a tiny program that runs on the GPU for every single pixel on screen. My custom shader checks two things for each pixel of the video plane: (1) what colour is the video, and (2) does the AI mask say a person is here? If a person is detected at that pixel, it calls clip() — which simply throws that pixel away. When the video pixel is discarded, the real camera feed shows through underneath, making the person appear in front."*
-
----
-
-**Q7: Why not use ARCore Depth API instead of AI?**
-> *"The ARCore Depth API uses the phone to estimate how far away objects are, then hides video pixels that are closer. The problem is that most phones don't have a dedicated depth sensor, so it's less accurate at the edges of objects — exactly where you need precision for a clean silhouette. My AI approach follows the actual visual boundary of the person, giving sharper results on any standard camera phone."*
-
----
-
-**Q8: What is TryAcquireLatestCpuImage()?**
-> *"This is the AR Foundation command that gets the raw camera frame directly from the phone's camera hardware — without going through the slow GPU-to-CPU transfer that a normal screenshot would require. Getting the frame this way is much faster and is the correct approach for feeding live camera data into an AI model."*
-
----
-
-**Q9: What does inference throttling mean?**
-> *"Instead of running the AI model on every single camera frame (30–60 times per second), I only run it every 2nd frame. This halves the GPU workload without any noticeable effect, because people move slowly relative to the frame rate. The mask from the previous frame is still accurate enough for the current frame."*
-
----
-
-**Q10: What are the limitations of your system?**
-> *"Three main ones: First, the AI is trained to detect people — it won't mask other objects like chairs. Second, in very dark or strongly backlit scenes, the segmentation is less accurate. Third, the mask output is 256×256 pixels, which can look slightly blocky at the edges — I use smooth blending in the shader to reduce this."*
-
----
-
-**Q11: What would you do differently or improve next?**
-> *"I'd add optical flow — a technique that tracks how pixels move between frames — to carry the mask from one frame to the next. This would allow running the AI even less often (every 5–6 frames) without any visual lag, cutting GPU usage in half again. I'd also explore fusing depth data on devices that have depth sensors to get even sharper silhouette edges."*
-
----
-
-**Q12: What is knowledge distillation?**
-> *"Knowledge distillation is how MobileSAM was created. You take a large, accurate AI model (the teacher — full SAM) and train a small, fast model (the student — MobileSAM) to produce the same outputs. The student learns to mimic the teacher, ending up nearly as accurate but a hundred times faster."*
-
----
-
-**Q13: How did you evaluate the system?**
-> *"I measured three things: occlusion accuracy (what percentage of person pixels were correctly masked), frame rate (FPS with and without occlusion active), and segmentation latency (how many milliseconds from camera frame to mask ready). I tested in different lighting conditions — bright indoor, dim indoor, and outdoor."*
-
----
-
 ## ⚠️ COMMON PROBLEMS & FIXES
 
 | Problem | Fix |
@@ -473,16 +350,6 @@ The viva is your most important assessment. Here are the key questions with answ
 
 ---
 
-## 📦 FINAL SUBMISSION CHECKLIST
-
-| Item | Status |
-|------|--------|
-| App built and tested on phone | ☐ |
-| All 4 occlusion tests pass (hand in front, toggle works) | ☐ |
-| FPS noted down for report (target ≥ 20 FPS) | ☐ |
-| Demo video recorded (2–3 minutes) | ☐ |
-| Written report submitted | ☐ |
-| GitHub repo created and code pushed | ☐ |
 
 ---
 
@@ -501,15 +368,5 @@ KEY NUMBERS TO REMEMBER:
   → Mask output: 256×256 pixels
   → Target FPS: ≥ 20 with occlusion active
 
-KEY TERMS FOR VIVA:
-  → AR Foundation   = Unity's AR tracking toolkit
-  → MobileSAM       = lightweight AI that detects person silhouette  
-  → Unity Sentis    = runs AI inside the app on the phone GPU
-  → HLSL shader     = tiny GPU program that hides video where person is
-  → clip()          = HLSL command that deletes a pixel from the screen
-  → Occlusion error = when virtual content floats in front of real objects
-```
-
----
 
 *Guide written for EE654 3D Vision & AR Project — Maynooth University, 2026*
